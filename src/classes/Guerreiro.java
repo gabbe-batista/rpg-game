@@ -1,5 +1,7 @@
 package classes;
 
+import exceptions.AcaoInvalidaException;
+import exceptions.AtributoInvalidoException;
 import interfaces.Atacante;
 
 public class Guerreiro extends Personagem implements Atacante {
@@ -21,6 +23,9 @@ public class Guerreiro extends Personagem implements Atacante {
     }
 
     public void setForca(int forca) {
+        if (forca < 0) {
+            throw new AtributoInvalidoException("Força não pode ser negativa.");
+        }
         this.forca = forca;
     }
 
@@ -29,6 +34,9 @@ public class Guerreiro extends Personagem implements Atacante {
     }
 
     public void setArmadura(int armadura) {
+        if (armadura < 0) {
+            throw new AtributoInvalidoException("Armadura não pode ser negativa.");
+        }
         this.armadura = armadura;
     }
 
@@ -38,6 +46,9 @@ public class Guerreiro extends Personagem implements Atacante {
 
     @Override
     public void atacar(Personagem alvo) {
+        if (alvo == null) {
+            throw new AcaoInvalidaException("Alvo inválido para ataque.");
+        }
         int dano = (this.forca * 2) + (this.ira / 10);
         int critico = new java.util.Random().nextInt(100);
         
@@ -53,18 +64,29 @@ public class Guerreiro extends Personagem implements Atacante {
     }
 
     public void usarHabilidadeEspecial(Personagem alvo) {
-        if (this.ira >= 50) {
-            int dano = (this.forca * 3) + (this.ira / 5);
-            alvo.receberDano(dano);
-            this.ira = 0;
-            System.out.println(getNome() + " usa ATAQUE FURIOSO em " + alvo.getNome() + ", causando " + dano + " de dano!");
-        } else {
-            System.out.println(getNome() + " não tem ira suficiente! (" + this.ira + "/50)");
+        try {
+            if (alvo == null) {
+                throw new AcaoInvalidaException("Alvo inválido para habilidade especial.");
+            }
+
+            if (this.ira >= 50) {
+                int dano = (this.forca * 3) + (this.ira / 5);
+                alvo.receberDano(dano);
+                this.ira = 0;
+                System.out.println(getNome() + " usa ATAQUE FURIOSO em " + alvo.getNome() + ", causando " + dano + " de dano!");
+            } else {
+                System.out.println(getNome() + " não tem ira suficiente! (" + this.ira + "/50)");
+            }
+        } catch (AcaoInvalidaException e) {
+            System.out.println(e.getMessage());
         }
     }
 
     @Override
     public void receberDano(int dano) {
+        if (dano < 0) {
+            throw new AtributoInvalidoException("Dano não pode ser negativo.");
+        }
         int danoReduzido = Math.max(1, dano - (this.armadura / 2));
         super.receberDano(danoReduzido);
     }

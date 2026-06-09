@@ -1,5 +1,6 @@
 package classes;
 
+import exceptions.PersonagemInvalidoException;
 import interfaces.CriadorPersonagem;
 
 public class CriadorArqueiro implements CriadorPersonagem {
@@ -65,8 +66,12 @@ public class CriadorArqueiro implements CriadorPersonagem {
     @Override
     public Arqueiro construir() {
         if (this.nome == null || this.nome.isEmpty()) {
-            throw new IllegalArgumentException("Nome do Arqueiro é obrigatório!");
+            throw new PersonagemInvalidoException("Nome do Arqueiro é obrigatório!");
         }
-        return new Arqueiro(this.nome, this.vida, this.defesa, this.inteligencia, this.velocidade, this.agilidade, this.precisao);
+        try {
+            return new Arqueiro(this.nome, this.vida, this.defesa, this.inteligencia, this.velocidade, this.agilidade, this.precisao);
+        } catch (RuntimeException e) {
+            throw new PersonagemInvalidoException("Falha ao construir Arqueiro: " + e.getMessage(), e);
+        }
     }
 }

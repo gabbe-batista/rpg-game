@@ -1,5 +1,8 @@
 package classes;
 
+import exceptions.AtributoInvalidoException;
+import exceptions.PersonagemInvalidoException;
+
 public abstract class Personagem {
 
     private String nome;
@@ -12,6 +15,16 @@ public abstract class Personagem {
     private int velocidade;
 
     public Personagem(String nome, int vida, int defesa, int inteligencia, int velocidade) {
+        if (nome == null || nome.isBlank()) {
+            throw new PersonagemInvalidoException("Nome do personagem é obrigatório.");
+        }
+        if (vida <= 0) {
+            throw new AtributoInvalidoException("Vida inicial deve ser maior que zero.");
+        }
+        if (defesa < 0 || inteligencia < 0 || velocidade < 0) {
+            throw new AtributoInvalidoException("Atributos não podem ser negativos.");
+        }
+
         this.nome = nome;
         this.vida = vida;
         this.vidaMaxima = vida;
@@ -27,6 +40,9 @@ public abstract class Personagem {
     }
 
     public void setNome(String nome) {
+        if (nome == null || nome.isBlank()) {
+            throw new PersonagemInvalidoException("Nome do personagem é obrigatório.");
+        }
         this.nome = nome;
     }
 
@@ -35,6 +51,9 @@ public abstract class Personagem {
     }
 
     public void setVida(int vida) {
+        if (vida < 0) {
+            throw new AtributoInvalidoException("Vida não pode ser negativa.");
+        }
         this.vida = Math.min(vida, this.vidaMaxima);
     }
 
@@ -43,7 +62,11 @@ public abstract class Personagem {
     }
 
     public void setVidaMaxima(int vidaMaxima) {
+        if (vidaMaxima <= 0) {
+            throw new AtributoInvalidoException("Vida máxima deve ser maior que zero.");
+        }
         this.vidaMaxima = vidaMaxima;
+        this.vida = Math.min(this.vida, this.vidaMaxima);
     }
 
     public int getNivel() {
@@ -51,6 +74,9 @@ public abstract class Personagem {
     }
 
     public void setNivel(int nivel) {
+        if (nivel <= 0) {
+            throw new AtributoInvalidoException("Nível deve ser maior que zero.");
+        }
         this.nivel = nivel;
     }
 
@@ -59,6 +85,9 @@ public abstract class Personagem {
     }
 
     public void adicionarExperiencia(int exp) {
+        if (exp < 0) {
+            throw new AtributoInvalidoException("Experiência não pode ser negativa.");
+        }
         this.experiencia += exp;
         if (this.experiencia >= 100) {
             subirDeNivel();
@@ -78,6 +107,9 @@ public abstract class Personagem {
     }
 
     public void setDefesa(int defesa) {
+        if (defesa < 0) {
+            throw new AtributoInvalidoException("Defesa não pode ser negativa.");
+        }
         this.defesa = defesa;
     }
 
@@ -86,6 +118,9 @@ public abstract class Personagem {
     }
 
     public void setInteligencia(int inteligencia) {
+        if (inteligencia < 0) {
+            throw new AtributoInvalidoException("Inteligência não pode ser negativa.");
+        }
         this.inteligencia = inteligencia;
     }
 
@@ -94,6 +129,9 @@ public abstract class Personagem {
     }
 
     public void setVelocidade(int velocidade) {
+        if (velocidade < 0) {
+            throw new AtributoInvalidoException("Velocidade não pode ser negativa.");
+        }
         this.velocidade = velocidade;
     }
 
@@ -102,6 +140,9 @@ public abstract class Personagem {
     }
 
     public void receberDano(int dano) {
+        if (dano < 0) {
+            throw new AtributoInvalidoException("Dano não pode ser negativo.");
+        }
         int danoFinal = Math.max(1, dano - (this.defesa / 2));
         this.vida = Math.max(0, this.vida - danoFinal);
     }

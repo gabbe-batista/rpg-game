@@ -1,6 +1,9 @@
 package classes;
 
+import exceptions.AcaoInvalidaException;
+import exceptions.PersonagemInvalidoException;
 import interfaces.Atacante;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class SistemaCombate {
@@ -11,6 +14,9 @@ public class SistemaCombate {
     private Personagem turnoAtual;
     
     public SistemaCombate(Personagem jogador1, Personagem jogador2) {
+        if (jogador1 == null || jogador2 == null) {
+            throw new PersonagemInvalidoException("Os dois jogadores precisam ser válidos para iniciar o combate.");
+        }
         this.jogador1 = jogador1;
         this.jogador2 = jogador2;
         this.turno = 0;
@@ -47,10 +53,13 @@ public class SistemaCombate {
             
             try {
                 int acao = scanner.nextInt();
-                executarAcao(acao, turnoAtual, adversario);
-            } catch (Exception e) {
+                executarAcao(acao, turnoAtual, adversario, scanner);
+            } catch (InputMismatchException e) {
                 System.out.println("Entrada inválida! Use números.");
                 scanner.nextLine();
+                continue;
+            } catch (AcaoInvalidaException e) {
+                System.out.println(e.getMessage());
                 continue;
             }
             
@@ -72,21 +81,20 @@ public class SistemaCombate {
         System.out.println("3 - Ver Estatísticas");
     }
     
-    private void executarAcao(int acao, Personagem atacante, Personagem adversario) {
+    private void executarAcao(int acao, Personagem atacante, Personagem adversario, Scanner scanner) {
         switch (acao) {
             case 1:
                 realizarAtaqueNormal(atacante, adversario);
                 break;
             case 2:
-                realizarHabilidadeEspecial(atacante, adversario);
+                realizarHabilidadeEspecial(atacante, adversario, scanner);
                 break;
             case 3:
                 exibirEstatisticas(atacante, adversario);
                 turnoAtual = atacante;
                 return;
             default:
-                System.out.println("Ação inválida! Ataque normal é realizado.");
-                realizarAtaqueNormal(atacante, adversario);
+                throw new AcaoInvalidaException("Ação inválida! Escolha uma opção entre 1 e 3.");
         }
     }
     
@@ -98,28 +106,28 @@ public class SistemaCombate {
         }
     }
     
-    private void realizarHabilidadeEspecial(Personagem atacante, Personagem adversario) {
+    private void realizarHabilidadeEspecial(Personagem atacante, Personagem adversario, Scanner scanner) {
         if (atacante instanceof Guerreiro) {
             ((Guerreiro) atacante).usarHabilidadeEspecial(adversario);
         } else if (atacante instanceof Mago) {
             System.out.println("\nEscolha a magia:");
             System.out.println("1 - Cura");
             System.out.println("2 - Explosão Mágica");
-            
-            try (Scanner scanner = new Scanner(System.in)) {
-                System.out.print("Opção: ");
-                int opcao = scanner.nextInt();
-                
-                if (opcao == 1) {
-                    ((Mago) atacante).lancarCura(atacante);
-                } else if (opcao == 2) {
-                    ((Mago) atacante).lancaExplosaoMagica(adversario);
-                } else {
-                    System.out.println("Opção inválida!");
-                }
+
+            System.out.print("Opção: ");
+            int opcao = scanner.nextInt();
+
+            if (opcao == 1) {
+                ((Mago) atacante).lancarCura(atacante);
+            } else if (opcao == 2) {
+                ((Mago) atacante).lancaExplosaoMagica(adversario);
+            } else {
+                throw new AcaoInvalidaException("Opção de magia inválida!");
             }
         } else if (atacante instanceof Arqueiro) {
             System.out.println("Arqueiro não possui habilidade especial neste momento!");
+        } else {
+            throw new AcaoInvalidaException("Classe de personagem sem habilidade especial cadastrada.");
         }
     }
     

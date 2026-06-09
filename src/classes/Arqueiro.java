@@ -1,5 +1,8 @@
 package classes;
 
+import exceptions.AcaoInvalidaException;
+import exceptions.AtributoInvalidoException;
+import exceptions.RecursoInsuficienteException;
 import interfaces.Atacante;
 
 public class Arqueiro extends Personagem implements Atacante {
@@ -21,6 +24,9 @@ public class Arqueiro extends Personagem implements Atacante {
     }
 
     public void setAgilidade(int agilidade) {
+        if (agilidade < 0) {
+            throw new AtributoInvalidoException("Agilidade não pode ser negativa.");
+        }
         this.agilidade = agilidade;
     }
 
@@ -29,6 +35,9 @@ public class Arqueiro extends Personagem implements Atacante {
     }
 
     public void setPrecisao(int precisao) {
+        if (precisao < 0) {
+            throw new AtributoInvalidoException("Precisão não pode ser negativa.");
+        }
         this.precisao = precisao;
     }
 
@@ -42,30 +51,36 @@ public class Arqueiro extends Personagem implements Atacante {
 
     @Override
     public void atacar(Personagem alvo) {
-        if (this.municao <= 0) {
-            System.out.println(getNome() + " ficou sem munição!");
-            return;
-        }
-
-        this.municao--;
-        int acertoBaso = this.precisao + (this.agilidade / 2);
-        int tentativaAcerto = new java.util.Random().nextInt(100);
-        
-        if (tentativaAcerto < acertoBaso) {
-            int dano = (this.agilidade * 2) + (this.getPrecisao() / 2);
-            
-            if (tentativaAcerto < 15) {
-                dano = (int) (dano * 2.0);
-                System.out.println(getNome() + " acerta um DISPARO PRECISO em " + alvo.getNome() + "!");
+        try {
+            if (alvo == null) {
+                throw new AcaoInvalidaException("Alvo inválido para ataque.");
             }
-            
-            alvo.receberDano(dano);
-            System.out.println(getNome() + " atirou em " + alvo.getNome() + ", causando " + dano + " de dano.");
-        } else {
-            System.out.println(getNome() + " ERROU o disparo!");
+            if (this.municao <= 0) {
+                throw new RecursoInsuficienteException(getNome() + " ficou sem munição!");
+            }
+
+            this.municao--;
+            int acertoBaso = this.precisao + (this.agilidade / 2);
+            int tentativaAcerto = new java.util.Random().nextInt(100);
+
+            if (tentativaAcerto < acertoBaso) {
+                int dano = (this.agilidade * 2) + (this.getPrecisao() / 2);
+
+                if (tentativaAcerto < 15) {
+                    dano = (int) (dano * 2.0);
+                    System.out.println(getNome() + " acerta um DISPARO PRECISO em " + alvo.getNome() + "!");
+                }
+
+                alvo.receberDano(dano);
+                System.out.println(getNome() + " atirou em " + alvo.getNome() + ", causando " + dano + " de dano.");
+            } else {
+                System.out.println(getNome() + " ERROU o disparo!");
+            }
+
+            System.out.println("Munição: " + this.municao + "/" + MUNICAO_MAXIMA);
+        } catch (RecursoInsuficienteException | AcaoInvalidaException e) {
+            System.out.println(e.getMessage());
         }
-        
-        System.out.println("Munição: " + this.municao + "/" + MUNICAO_MAXIMA);
     }
 
     public void esquivar() {
@@ -74,6 +89,9 @@ public class Arqueiro extends Personagem implements Atacante {
 
     @Override
     public void receberDano(int dano) {
+        if (dano < 0) {
+            throw new AtributoInvalidoException("Dano não pode ser negativo.");
+        }
         int danoReduzido = Math.max(1, (int) (dano * 0.8));
         super.receberDano(danoReduzido);
     }

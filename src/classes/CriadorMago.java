@@ -1,5 +1,6 @@
 package classes;
 
+import exceptions.PersonagemInvalidoException;
 import interfaces.CriadorPersonagem;
 
 public class CriadorMago implements CriadorPersonagem {
@@ -65,8 +66,12 @@ public class CriadorMago implements CriadorPersonagem {
     @Override
     public Mago construir() {
         if (this.nome == null || this.nome.isEmpty()) {
-            throw new IllegalArgumentException("Nome do Mago é obrigatório!");
+            throw new PersonagemInvalidoException("Nome do Mago é obrigatório!");
         }
-        return new Mago(this.nome, this.vida, this.defesa, this.inteligencia, this.velocidade, this.mana, this.sabedoria);
+        try {
+            return new Mago(this.nome, this.vida, this.defesa, this.inteligencia, this.velocidade, this.mana, this.sabedoria);
+        } catch (RuntimeException e) {
+            throw new PersonagemInvalidoException("Falha ao construir Mago: " + e.getMessage(), e);
+        }
     }
 }
